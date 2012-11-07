@@ -42,7 +42,7 @@ p.rm3 <- c(r = r, e = e, a = 2.0, K = K, Ro = Ro)
 Time <- 300 # set time scale
 
 # create ordinary differential equations with increasing attack rates (all other parameter values held constant).  Initial state values (consumer and resource densities) are both set at 0.1
-i.state <- c(0.1,0.1)
+i.state <- c(R=0.1,C=0.1)
 rm1 <- ode(i.state,1:Time, rmcr, p.rm1)
 rm2 <- ode(i.state,1:Time, rmcr, p.rm2)
 rm3 <- ode(i.state,1:Time, rmcr, p.rm3)
@@ -53,46 +53,56 @@ plot(rm2, main = c("Resource", "Consumer"), ylab = c("Density","Density"))
 # Fig 2.6c (only Consumer shown in book)
 plot(rm3, main = c("Resource", "Consumer"), ylab = c("Density","Density"))
 
-## Figure 2.7...
-library(deSolve)
-
-LotVmod <- function (Time, State, Pars) {
-  with(as.list(c(State, Pars)), {
-    dx = x*(alpha - beta*y)
-    dy = -y*(gamma - delta*x)
-    return(list(c(dx, dy)))
-  })
-}
-
-n <- 100 # number of simulations
-param.name <- "a max" # choose parameter to perturb
+## Figure 2.7a.  All credit goes to this website: http://www.r-bloggers.com/r-tools-for-dynamical-systems-bifurcation-plot-in-r%C2%A0for%C2%A0system%C2%A0of%C2%A0odes/
+param.name <- "a" # choose parameter to perturb
 param.seq <- seq(1,2.5,length=50) # choose range of parameters
+p.rm4 <- c(r = r, e = e, a = 1.0, K = K, Ro = Ro, m=m) # set starting parameters.
 
-p.rm1 <- c(r = r, e = e, a = 1.0, K = K, Ro = Ro)
-#Pars <- c(alpha = 1, beta = .001, gamma = 1, delta = .001)
-Time <- seq(0, 10, length = n)
-State <- c(x = .5, y = .9)
-
-param.index <- which(param.name == names(Pars))
+param.index <- which(param.name == names(p.rm4)) # tells the loop which parameter in "p.rm4" to grab for manipulation.
 out <- list()
 for (i in 1:length(param.seq))
-  out[[i]] <- matrix(0, n, length(State))
+  out[[i]] <- matrix(0, n, length(i.state))
 
 for (i in 1:length(param.seq)) {
   # set params
-  Pars.loop <- Pars
-  Pars.loop[param.index] <- param.seq[i]
+  p.rm4.loop <- p.rm4
+  p.rm4.loop[param.index] <- param.seq[i] # changes the parameter value for manipulation in the "init" function below.
   # converge
-  init <- ode(State, Time, LotVmod, Pars.loop)
+  init <- ode(i.state, 1:Time, rmcr, p.rm4.loop)
   # get converged points
-  out[[i]] <- ode(init[n,-1], Time, LotVmod, Pars.loop)[,-1]
+  out[[i]] <- ode(init[Time,-1], 1:Time, rmcr, p.rm4.loop)[,-1]
 }
 
-range.lim <- lapply(out, function(x) apply(x, 2, range))
+range.lim <- lapply(out, function(x) apply(x, 2, range)) # don't completely understand what is going on here...
 range.lim <- apply(do.call("rbind", range.lim), 2, range)
-plot.variable <- "x" # choose which variable to show
+plot.variable <- "C" # choose which variable to show
 plot(0, 0, pch = "", xlab = param.name, ylab = plot.variable,
      xlim = range(param.seq), ylim = range.lim[,plot.variable])
 for (i in 1:length(param.seq)) {
-  points(rep(param.seq[i], n), out[[i]][,plot.variable])
+  points(rep(param.seq[i], Time), out[[i]][,plot.variable])
 }
+
+### Figure 2.7b. Tips taken from Enemy-Victim Interactions chapter of a Primer of Ecology in R
+
+#### Currently not getting the dip in eigen value like I expected
+dR.dt <- expression(r * R * (1 - R / K) - a * C * R / (R + Ro))
+dC.dt <- expression(e * a * C * R / (R + Ro) - m * C)
+RMjac1 <- list(D(dR.dt,"R"),D(dC.dt,"R"),D(dR.dt,"C"),D(dC.dt,"C"))
+
+# confused about what I'm doing here...
+R <- m * Ro / (e * a - m) # expression is the consumer isocline... but why?
+C <- eval(Riso)
+
+RM.jac2 <- matrix(sapply(RMjac1, function(pd) eval(pd)), nrow = 2)
+eigen(RM.jac2)[["values"]]
+
+rmcr.jacList <- lapply(1:length(param.seq), function(i) {
+  a <- param.seq[i] # changes the parameter value for manipulation
+  C <- eval(Riso)
+  matrix(sapply(RMjac1, function(pd) eval(pd)), nrow=2)
+})
+
+L1 <- sapply(rmcr.jacList, function(J) max(Re(eigen(J)[["values"]])))
+
+
+plot(param.seq,L1,type ="l",xlab = "a")
