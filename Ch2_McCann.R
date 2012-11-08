@@ -3,10 +3,13 @@
 ##########   get everything ready to go
 setwd("~/Dropbox/FoodWebs") # set working directory
 library("deSolve") # load required library
+library("seqinr")
 source('~/Dropbox/FoodWebs/Models.R') # source in R-M C-R model
 
 ###########  set parameters and state variables for the R-M C-R model
 # state variable values (initial values at beginning of "experiments")
+R <- 0.6
+C <- 0.1
 i.state <- c(R=0.6,C=0.1) 
 
 # parameter values
@@ -20,8 +23,8 @@ p.rm1 <- c(r = r, e = e, a = a, K = K, Ro = Ro, m=m) # create a vector for the p
 
 ###########  Code below creates a pdf illustrating how increasing attack rate influences consumer and resource isoclines as well as consumer and resource densities over time (modified Figures 2.1, 2.6, and 2.7 from the book)
 
-pdf("AttackRate.C-R.pdf") # initiate pdf document
-par(mfrow=c(1,2)) # plot graphs side-by-side
+pdf("AttackRate.C-R.pdf",paper="USr", width=11, height=5) # initiate pdf document (landscape format)
+par(mfrow=c(1,3)) # plot graphs side-by-side
 
 #### setup experiment. This experiment essentially solves the model at the initial C and R densities, and takes the new C and R densities and reruns the model, and so on until the end of time.
 Time <- 300 # set time scale
@@ -37,16 +40,25 @@ Ciso <- expression(m * Ro / (e * a - m)) # set C = 0, and solved algebraically.
 CisoStable <- eval(Ciso)
 
 ## Experiment 1: a = 1.3
-# plot densities
-matplot(rm1[,1],rm1[,c(2,3)], type = "l", ylab="Density", xlab="Time", ylim=c(0,2), main = "a = 1.3")
-legend("right", c("R","C"), lty=1:2, col=1:2, bty="n")
+# plot consumer functional response and consumer isocline
+Cfr <- expression(a * C * Rx / (Rx + Ro))
+CfrData <- eval(Cfr)
+plot(Rx,CfrData, ylim=c(0,0.18), type = "l", ylab="Consumption Rate of Consumer", xlab="Resource Density")
+abline(v=CisoStable, lty = 2, col =2)
+rect(CisoStable,0,max(Rx),0.18, col=col2alpha("red",0.5)) # shaded area indicates where consumer population growth rate is greater than zero
 
 # plot stability around consumer and resource isoclines
-plot(Rx,RisoStable, type = "l", ylab = "C", ylim=0:1, xlim = c(0,2))
+plot(Rx,RisoStable, type = "l", ylab = "C", ylim=0:1, xlim = c(0,2), xlab="R", main="attack rate = 1.3")
 abline(v=CisoStable, lty = 2, col =2) 
 legend("topleft", c("R-isocline","C-isocline"), lty=1:2, bty="n", cex=0.8, col=1:2)
 points(i.state[1],i.state[2]) # starting point of experiment
 arrows(rm1[-Time,2], rm1[-Time,3], rm1[-1,2], rm1[-1,3], length=0.1, lty=1) # trace stability across different time steps. Don't know why there are so many warnings
+
+# plot densities
+matplot(rm1[,1],rm1[,c(2,3)], type = "l", ylab="Density", xlab="Time", ylim=c(0,2))
+legend("right", c("R","C"), lty=1:2, col=1:2, bty="n")
+
+
 
 ######## Experiment 2: a = 1.6
 ###  adjust parameters
@@ -60,16 +72,25 @@ RisoStable <- eval(Riso)
 Ciso <- expression(m * Ro / (e * a - m)) # adjusted attack rate
 CisoStable <- eval(Ciso)
 
-#### plot consumer and resource densities
-matplot(rm2[,1],rm2[,c(2,3)], type = "l", ylab="Density", xlab="Time", ylim=c(0,2), main = "a = 1.6")
-legend("topright", c("R","C"), lty=1:2, col=1:2, bty="n")
+# plot consumer functional response and consumer isocline
+Cfr <- expression(a * C * Rx / (Rx + Ro))
+CfrData <- eval(Cfr)
+plot(Rx,CfrData, ylim=c(0,0.18), type = "l", ylab="Consumption Rate of Consumer", xlab="Resource Density")
+abline(v=CisoStable, lty = 2, col =2)
+rect(CisoStable,0,max(Rx),0.18, col=col2alpha("red",0.5)) # shaded area indicates where consumer population growth rate is greater than zero
 
 #### plot stabilities around consumer and resource isoclines.
-plot(Rx, RisoStable, type = "l", ylab = "C", ylim=0:1)
+plot(Rx, RisoStable, type = "l", ylab = "C", ylim=0:1, xlab="R", main="attack rate = 1.6")
 abline(v=CisoStable, lty = 2, col =2) 
 legend("topright", c("R-isocline","C-isocline"), lty=1:2, bty="n", cex=0.8, col=1:2)
 points(i.state[1],i.state[2]) # starting point of experiment
-arrows(rm2[-Time,2], rm2[-Time,3], rm2[-1,2], rm2[-1,3], length=0.1, lty=1) 
+arrows(rm2[-Time,2], rm2[-Time,3], rm2[-1,2], rm2[-1,3], length=0.1, lty=1)
+
+#### plot consumer and resource densities
+matplot(rm2[,1],rm2[,c(2,3)], type = "l", ylab="Density", xlab="Time", ylim=c(0,2))
+legend("topright", c("R","C"), lty=1:2, col=1:2, bty="n")
+
+
 
 ######## Experiment 3: a = 2.0
 ### adjust parameter values
@@ -84,16 +105,25 @@ RisoStable <- eval(Riso)
 Ciso <- expression(m * Ro / (e * a - m)) 
 CisoStable <- eval(Ciso)
 
-### plot densities
-matplot(rm3[,1],rm3[,c(2,3)], type = "l", ylab="Density", xlab="Time", ylim=c(0,2), main = "a = 2.0")
-legend("topright", c("R","C"), lty=1:2, col=1:2, bty="n", cex=0.8)
+# plot consumer functional response and consumer isocline
+Cfr <- expression(a * C * Rx / (Rx + Ro))
+CfrData <- eval(Cfr)
+plot(Rx,CfrData, ylim=c(0,0.18), type = "l", ylab="Consumption Rate of Consumer", xlab="Resource Density")
+abline(v=CisoStable, lty = 2, col =2)
+rect(CisoStable,0,max(Rx),0.18, col=col2alpha("red",0.5)) # shaded area indicates where consumer population growth rate is greater than zero
 
 ### plot stabilities around resouce and consumer isoclines 
-plot(Rx,RisoStable, type = "l", ylab = "C", ylim=0:1)
+plot(Rx,RisoStable, type = "l", ylab = "C", ylim=0:1, xlab="R",main="attack rate = 2.0")
 abline(v=CisoStable, lty = 2, col = 2) # attack rate adjusted to a = 2.0
 legend("topright", c("R-isocline","C-isocline"), lty=1:2, col=1:2, bty="n", cex=0.8)
 points(i.state[1],i.state[2]) # starting point of experiment
-arrows(rm3[-Time,2], rm3[-Time,3], rm3[-1,2], rm3[-1,3], length=0.1, lty=1) 
+arrows(rm3[-Time,2], rm3[-Time,3], rm3[-1,2], rm3[-1,3], length=0.1, lty=1)
+
+### plot densities
+matplot(rm3[,1],rm3[,c(2,3)], type = "l", ylab="Density", xlab="Time", ylim=c(0,2))
+legend("topright", c("R","C"), lty=1:2, col=1:2, bty="n", cex=0.8)
+
+
 
 ############  Figure 2.7a: Bifurcation plot  (All credit for replicating this goes to this website: http://www.r-bloggers.com/r-tools-for-dynamical-systems-bifurcation-plot-in-r%C2%A0for%C2%A0system%C2%A0of%C2%A0odes/)
 
