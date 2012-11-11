@@ -29,3 +29,19 @@ rmcr <- function(t,y,p) {
     return(list(c(dR.dt,dC.dt)))
   })
 }
+
+############# Continuous logistic growth model ##################################
+# note that this is a phenomological model that tends to explain isolated single species population dynamics well
+clg <- function(t,y,p) {
+  R <- y[1]
+  with(as.list(p), {
+    dR.dt <- r * R * (1 - R / K)
+    return(list(c(dR.dt)))
+  })
+}
+
+############# Ricker Model - discrete time population model ###########################
+# these models can account for lagged population responses, which may be common to organisms that reproduce on seasonal cycles.
+# help for writing this model came from Duke University's website for Bio 292: Population Ecology. Code was written by wfmorris
+
+#Nt1=Nt*exp(B*(1-Nt/K)
