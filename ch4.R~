@@ -1,0 +1,57 @@
+##
+
+
+# setup experiments
+Time <- 25
+B1 <- 0.5
+B2 <- 1.5
+B3 <- 3
+K <- 2
+
+# run experiments
+N1=matrix(0.1,1,Time+1)
+for(t in 1:Time) N1[t+1]=N1[t]*exp(B1*(1-N1[t]/K) )
+
+N2=matrix(0.1,1,Time+1)
+for(t in 1:Time) N2[t+1]=N2[t]*exp(B2*(1-N2[t]/K) )
+
+N3=matrix(0.1,1,Time+1)
+for(t in 1:Time) N3[t+1]=N3[t]*exp(B3*(1-N3[t]/K) )
+
+# get data for phase-space graphs
+Nt <- seq(0,3.0,0.1)
+Nt1 <- Nt*exp(B1*(1-Nt/K))
+Nt2 <- Nt*exp(B2*(1-Nt/K))
+Nt3 <- Nt*exp(B3*(1-Nt/K))
+NtData <- data.frame(Nt,Nt1,Nt2,Nt3)
+
+
+par(mfrow=c(1,2))
+plot(1:Time,N1[1:Time],type="l",xlab="Time",ylab="Resource Density",ylim=c(0,3))
+lines(1:Time,N2[1:Time],col=2)
+lines(1:Time,N3[1:Time],col=3)
+legend("bottomright", c("r = 0.5","r = 1.5", "r = 2.0"),lty = c(1,1,1),col=1:3, bty="n")
+
+plot(Nt,Nt1,type="l",ylim=c(0,3))
+lines(Nt,Nt2,lty=1,col=2)
+lines(Nt,Nt3,lty=1,col=3)
+abline(a=0,b=1,lty=2,col=1)
+points(K,K,pch=16)
+
+install.packages("rootSolve")
+
+library("rootSolve")
+
+
+curve(-x*exp(x))
+
+char <- function(lambda,r=0.2){
+  lambda+r*exp(-lambda)
+}
+
+char(2)
+  
+lapply(seq(0,0.8,by=0.1),function(x){
+  multiroot(char,start=-0.5,r=x)$root}
+       )
+## this doesn't work!!
