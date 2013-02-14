@@ -45,7 +45,7 @@ ssCR <- function(t,y,p){
   R <- y[1]
   C <- y[2]
   with(as.list(p), {
-    dR.dt <- r * R * (t - T) * (1 - (R * (t - T)) / K ) - (a * R * C)/(R + Ro)
+    dR.dt <- r * R * (t - Tau) * (1 - (R * (t - Tau)) / K ) - (a * R * C)/(R + Ro)
 	dC.dt <- (e * a * R * C)/(R + Ro) - m * C
     return(list(c(dR.dt,dC.dt)))
   })

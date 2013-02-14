@@ -1,0 +1,30 @@
+```{r}
+source('~/Dropbox/FoodWebs/Models.R')
+library(deSolve)
+```
+
+Chapter 6
+=========
+
+6.1
+---
+
+6.2
+---
+Stage-structured C-R model:
+```{r}
+r <- 0.6
+K <- 10.0
+e <- 0.8
+m <- 0.5
+Ro <- 1.0
+Tau <- 2.7
+a <- 1.0 # not mentioned in McCann's book
+R <- 0.6
+
+Time <- 25
+
+p.ssCR <- c(r = r, K = K, e = e, m = m, Ro = Ro, Tau = Tau)
+
+ssCR.1 <- ode(R, 1:Time, ssCR, p.ssCR)
+```
