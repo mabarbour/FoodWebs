@@ -24,7 +24,7 @@ K <- 2.0 # indicated as 1.0 in Fig 2.1 description, but I think this was a typo 
 e <- 0.5 # predator conversion efficiency
 Ro <- 0.5 # half-saturation density of predator functional response
 m <- 0.5 # mortality rate of predator
-a <- 1.3 # initial attack rate of 1.3 instead of 1.2 more closely replicates the figures in the book
+a <- 1.7 # initial attack rate of 1.3 instead of 1.2 more closely replicates the figures in the book
 p.rm1 <- c(r = r, e = e, a = a, K = K, Ro = Ro, m=m) # create a vector for the parameters for experiment #1
 ```
 
@@ -173,4 +173,40 @@ plot(0, 0, pch = "", xlab = param.name, ylab = plot.variable, xlim = range(param
 for (i in 1:length(param.seq)) {
   points(rep(param.seq[i], Time), out[[i]][,plot.variable])
 }
+```
+
+Jacobian Matrix analysis
+
+```{r}
+# parameter values
+jacobian.roz.mac <- function(r = 1.0, K = 2.0, e = 0.5, Ro = 0.5, m = 0.5, a = 1.3){
+#r <- 1.0 # per capita rate of increase in resource 
+#K <- 2.0 # indicated as 1.0 in Fig 2.1 description,   but I think this was a typo in the book.
+#e <- 0.5 # predator conversion efficiency  
+#Ro <- 0.5 # half-saturation density of predator functional response
+#m <- 0.5 # mortality rate of predator
+#a <- 1.3 # initial attack rate of 1.3 instead of 1.2 more closely replicates the figures in the book
+
+  dR.dt <- expression(r * R * (1 - R / K) - a * C * R / (R + Ro))
+  dC.dt <- expression(e * a * C * R / (R + Ro) - m * C)
+  
+  CRjac1 <- list(D(dR.dt,"R"), D(dC.dt, "R"), D(dR.dt, "C"), D(dC.dt, "C")) # making a list of the partial derivatives for the consumer resource model
+  R <- m * Ro / (e * a - m) # this doesn't make sense...because it is the consumer isocline
+  C <- eval(Riso)
+    
+  matrix(sapply(CRjac1, function(partial.deriv) eval(partial.deriv)), nrow = 2)
+  }
+
+
+jacobian.roz.mac(a=3)
+seq.attack <- seq(1.1,3,by=0.1)
+jacob.attackrate.change <- lapply(seq.attack,function(as) jacobian.roz.mac(a=as))
+attack.rate.effect.res <- sapply(jacob.attackrate.change,"[",i=1,j=1)
+plot(attack.rate.effect.res,type='l')
+res.positive.attack.rate <- seq.attack[min(which(attack.rate.effect.res>0))]
+max.real.eigen <- sapply(jacob.attackrate.change,function(x) max(Re(eigen(x)[["values"]])))
+
+plot(max.real.eigen~seq.attack,type='l')
+abline(h=0)
+abline(v=1.7,lty=2)
 ```

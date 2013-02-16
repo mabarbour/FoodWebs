@@ -1,7 +1,7 @@
 Chapter 5
 ---------
 
-The code below illustrates how increasing the half-saturation density (Ro) of the Rozenburg-MacArthur consumer-resource model alters the stability of the system.
+The code below illustrates how increasing the predator efficiency of the Rozenburg-MacArthur consumer-resource model alters the stability of the system.
 
 ```{r eval=TRUE, echo=FALSE}
 ### Get everything ready to go
@@ -175,3 +175,5 @@ for (i in 1:length(param.seq)) {
   points(rep(param.seq[i], Time), out[[i]][,plot.variable])
 }
 ```
+
+In figure 5.2 e

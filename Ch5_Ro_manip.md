@@ -32,3 +32,36 @@ The figures below are the results of three separate simulations, where the half-
 Below is a bifurcation plot, showing how the dynamics of the system changes along a continuous gradient of half-saturation densities.  Note that at high half-saturation densities, the consumers go extinct, but the stability of the system quickly changes over a short parameter range.
 ![plot of chunk unnamed-chunk-4](figure/unnamed-chunk-4.png) 
 
+
+Jacobian Matrix analysis
+
+
+```r
+dR.dt <- expression(r * R * (1 - R/K) - a * C * R/(R + Ro))
+dC.dt <- expression(e * a * C * R/(R + Ro) - m * C)
+
+CRjac1 <- list(D(dR.dt, "R"), D(dC.dt, "R"), D(dR.dt, "C"), D(dc.dt, "C"))  # making a list of the partial derivatives for the consumer resource model
+```
+
+```
+## Error: object 'dc.dt' not found
+```
+
+```r
+R <- m * Ro/(e * a - m)  # this doesn't make sense...because it is the consumer isocline
+C <- eval(Hiso)
+```
+
+```
+## Error: object 'Hiso' not found
+```
+
+```r
+
+CRjac2 <- matrix(sapply(RMjac1, function(pd) eval(pd)), nrow = 2)
+```
+
+```
+## Error: object 'RMjac1' not found
+```
+
