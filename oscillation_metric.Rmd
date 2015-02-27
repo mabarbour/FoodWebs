@@ -30,9 +30,9 @@ rmcr <- function(t,y,p) {
 Set intial state variable (Resource and Consumer densities) for running the model. Note that it is not immediately clear what their initial state variable were so I just played around until I got ones that were close.
 ```{r}
 # state variable values (initial values at beginning of "experiments")
-R <- 0.2
-C <- 1
-i.state <- c(R = R,C = C) 
+R <- 1
+C <- 0.2
+i.state <- c(R = R, C = C) 
 ```
 
 Replicate Fig. 3a
@@ -57,7 +57,7 @@ rm1 <- ode(i.state,1:Time, rmcr, p.rm1) # run the experiment
 
 # replicate Fig. 3a
 matplot(rm1[,1], rm1[,c(2,3)],
-        type = "l", ylab="Density", xlab="Time", ylim=c(0, C*1.5), main = "Trissolcus interaction")
+        type = "l", ylab="Density", xlab="Time", ylim=c(0, C*15), main = "Trissolcus interaction")
 legend("top", c("R","C"), lty=1:2, col=1:2, bty="n")
 ```
 
@@ -77,7 +77,7 @@ rm2 <- ode(i.state, 1:Time, rmcr, p.rm2)
 
 # plot densities
 matplot(rm2[,1],rm2[,c(2,3)], 
-        type = "l", ylab="Density", xlab="Time", ylim=c(0,C*1.5), main = "Ooencyrtus interaction")
+        type = "l", ylab="Density", xlab="Time", ylim=c(0,C*15), main = "Ooencyrtus interaction")
 legend("top", c("R","C"), lty=1:2, col=1:2, bty="n")
 ```
 
