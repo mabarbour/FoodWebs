@@ -11,57 +11,119 @@ Load required R libraries for running the models.
 ```{r load libraries}
 require(deSolve)
 require(seqinr)
-```
 
-```{r}
-## Rosenzweig-MacArthur consumer-resource model 
-# assumes logistic resource growth and a type 2 functional response by the consumer (i.e. consumption rate saturates with resource density) and predator. This function is necessary for the ordinary differential equation solver, ode() 
-RM_apparent <- function(t,y,p) {
-  # t,y,p is the necessary format for solving using the ode() function in R
-  R1 <- y[1]
-  R2 <- y[2]
-  C <- y[3]
-  with(as.list(p), {
-    dR1.dt <- r1 * R1 * (1 - R1 / K1) - a1 * C * R1 / (1 + a1 * h1 * R1)
-    dR2.dt <- r2 * R2 * (1 - R2 / K2) - a2 * C * R2 / (1 + a2 * h2 * R2)
-    dC.dt <- e1 * a1 * C * R1 / (1 + a1 * h1 * R1) + e2 * a2 * C * R2 / (1 + a2 * h2 * R2)  - dC * C 
-    return(list(c(dR1.dt, dR2.dt, dC.dt)))
-  })
-}
+source('~/Dropbox/FoodWebs/consumer_resource_models.R')
 ```
 
 Set intial state variable (Resource and Consumer densities) for running the model. Note that it is not immediately clear what their initial state variable were so I just played around until I got ones that were close.
+
+Apparent competition model
 ```{r}
 # state variable values (initial values at beginning of "experiments")
 R1 <- R2 <- 1
-C <- 0.2
-i.state <- c(R1 = R1, R2 = R2, C = C) 
-```
+C1 <- 0.2
+i.state <- c(R1 = R1, R2 = R2, C1 = C1) 
 
-
-```{r}
-# parameter values from Fig. 7.3 in Food Webs by Kevin McCann
+# parameter values
 r1 <- r2 <- 1 # per capita rate of increase in resource
 K1 <- K2 <- 2 # carrying capacity
-e1 <- e2 <- 0.5 # predator conversion efficiency
-h1 <- 0.05 # handling time
-h2 <- 0.05
-dC <- 0.5 # mortality rate of predator
-a1 <- a2 <- 1.1 # attack rate of Consumer
+e1 <- 0.3 # predator conversion efficiency
+h1 <- h2 <- 0.03 # handling time
+dC1 <- 0.5 # mortality rate of predator
+a1 <- a2 <- 1 # attack rate of Consumer
 
 # run the experiment. This experiment essentially solves the model at the initial C and R densities, and takes the new C and R densities and reruns the model, and so on until the end of time.
 p.rm1 <- c(r1 = r1, r2 = r2, 
            K1 = K1, K2 = K2,
-           e1 = e1, e2 = e2, 
-           a1 = a1, a2 = a2,
-           h1 = h1, h2 = h2, 
-           dC = dC) # create a vector for the parameters for experiment #1
+           e1 = e1, 
+           a1 = a1*3, a2 = a2*3,
+           h1 = h1*10, h2 = h2*10, 
+           dC1 = dC1) # create a vector for the parameters for experiment #1
  
 Time <- 400 # set time scale
 rm1 <- ode(i.state, 1:Time, RM_apparent, p.rm1) # run the experiment 
 
 # replicate Fig. 3a
 matplot(rm1[,1], rm1[,c(2,3,4)],
-        type = "l", ylab="Density", xlab="Time", ylim=c(0, C*15), main = "Apparent Competition")
-legend("top", c("R1","R2", "C"), lty=1:3, col=1:3, bty="n")
+        type = "l", ylab="Density", xlab="Time", ylim=c(0, C*15), main = "Apparent Competition", lwd = 3)
+legend("top", c("R1","R2", "C"), lty=1:3, col=1:3, bty="n", lwd = 3)
 ```
+
+2 consumer 2 resource model
+```{r}
+# new state variables for model
+C2 <- C1
+i.state2 <- c(R1 = R1, R2 = R2, C1 = C1, C2 = C2) 
+
+# new parameters for model
+e2 <- e1
+dC2 <- dC1
+
+
+# run the experiment. This experiment essentially solves the model at the initial C and R densities, and takes the new C and R densities and reruns the model, and so on until the end of time.
+p.rm2 <- c(r1 = r1, r2 = r2, 
+           K1 = K1, K2 = K2,
+           e1 = e1, e2 = e2,
+           a1 = a1*3, a2 = a2,
+           h1 = h1, h2 = h2, 
+           dC1 = dC1, dC1 = dC2) # create a vector for the parameters for experiment #2
+ 
+rm2 <- ode(i.state2, 1:Time, RM_2C_2R, p.rm2) # run the experiment 
+
+# replicate Fig. 3a
+matplot(rm2[,1], rm2[,c(2,3,4,5)],
+        type = "l", ylab="Density", xlab="Time", ylim=c(0, C*15), main = "2 Consumers, 2 Resources", lwd = 3)
+legend("top", c("R1","R2", "C1", "C2"), lty=1:4, col=1:4, bty="n", lwd = 3)
+```
+
+This 2 consumer, 2 resource model appears quite robust to increases in attack rates or increases in handling time. In other words, it takes quite a lot to make this system oscillate, same with the apparent competition module. 
+
+I wonder though if it is more structurally stable than the apparent competition module? I think this it can handle asymmetry in attack rates between predators (i.e., it can handle specialization). But perhaps I'm cheating here. I may need to add all four attack rates to see if this is true or not.
+
+I wonder if I can determine the oscillation criteria for these 2 different modules?
+
+Adding an additional predator though doesn't not change resource density (I'm assuming because exploitative competition amongs predators just reduces their respective densities).
+
+2 consumer 2 resource FULL model. Doesn't seem to be working for sure right now...
+```{r}
+# new state variables for model
+R1 <- 1
+R2 <- 1
+C1 <- 0.2
+C2 <- 0.2
+i.state3 <- c(R1 = R1, R2 = R2, C1 = C1, C2 = C2) 
+
+# new parameters for model
+r1 <- r2 <- 1
+K1 <- K2 <- 2
+e11 <- e12 <- e21 <- e22 <- 0.5
+a11 <- a22 <- 1
+a12 <- a21 <- 1
+h11 <- h12 <- h21 <- h22 <- 0.5
+dC1 <- dC2 <- 0.5 
+
+
+# run the experiment. This experiment essentially solves the model at the initial C and R densities, and takes the new C and R densities and reruns the model, and so on until the end of time.
+p.rm3 <- c(r1 = r1, r2 = r2, 
+           K1 = K1, K2 = K2,
+           e11 = e11, e22 = e22, e12 = e12, e21 = e21,
+           a11 = a11, a22 = a22, a12 = a12, a21 = a21,
+           h11 = h11, h22 = h22, h12 = h12, h21 = h21, 
+           dC1 = dC1, dC1 = dC2)
+ 
+Time <- 200
+rm3 <- ode(i.state3, 1:Time, RM_2C_2R_full, p.rm3) # run the experiment 
+
+# replicate Fig. 3a
+matplot(rm3[,1], rm3[,c(2,3,4,5)],
+        type = "l", ylab="Density", xlab="Time", ylim=c(0, 2), main = "2 Consumers, 2 Resources", lwd = 3)
+legend("top", c("R1","R2", "C1", "C2"), lty=1:4, col=1:4, bty="n", lwd = 3)
+```
+
+Odd, increasing the handling time (for all) actually appears to stabilize the interaction.
+
+Need to perform different experiments. 
+- Character displacement
+- Character Convergence
+
+Need to read Abrams 1986, he analyzes linear functional responses, but the model is more comprehensive in other respects. Need to decide what is the best to do.
