@@ -7,7 +7,7 @@
 # (2) type 2 functional response of consumer
 # (3) density-independent mortality for consumer 
 
-## Apparent competition model: 1 consumer, 2 resources
+## Apparent competition model: 1 consumer, 2 resources ----
 # Contains a general form for a type 2 functional response for a system with 2 resource types (Murdoch and Oaten 1975). Essentially, consumers switch to alternative prey when those prey have a higher relative density.
 # assumes conversion efficiency is equal on both resources.
 RM_apparent <- function(t,y,p) {
@@ -27,7 +27,7 @@ RM_apparent <- function(t,y,p) {
   })
 }
 
-## 2 consumers, 2 resources
+## 2 consumers, 2 resources ----
 # Contains a general form for a type 2 functional response for a system with 2 resource types (Murdoch and Oaten 1975)
 # Followed Abrams 1980: Consumer functional response and competition consumer-resource systems
 # Note that only 2 attack rates and 2 handling times are modelled. This preserves the symmetry of the system. i.e. Consumer 1's handling time and attack rate for resource 1 is equal to Consumer 2's handling time and attack rate for resource 2. Similarly, Consumer 1's handling time and attack rate for resource 2 equals Consumer 2's handling time and attack rate for resource 1. 
@@ -58,7 +58,7 @@ RM_2C_2R <- function(t,y,p) {
   })
 }
 
-## 2 consumer, 2 resource model
+## 2 consumer, 2 resource model ----
 # This model defers from the previous one in that it contains 4 attack rates, 4 handling times, and 4 conversion efficiencies.
 # Contains a general form for a type 2 functional response for a system with 2 resource types (Murdoch and Oaten 1975).
 RM_2C_2R_full <- function(t,y,p) {
@@ -93,7 +93,7 @@ RM_2C_2R_full <- function(t,y,p) {
   })
 }
 
-## Apparent competition model (1 consumer, 2 resources) that also has a spatially implicit multispecies functional response. Details in McCann et al. 2005 and McCann 2012.
+## Apparent competition model (1 consumer, 2 resources) that also has a spatially implicit multispecies functional response. Details in McCann et al. 2005 and McCann 2012. ----
 RM_C_2R_space <- function(t,y,p) {
 
   R1 <- y[1]
@@ -122,7 +122,7 @@ RM_C_2R_space <- function(t,y,p) {
   })
 }
 
-## 2 consumer, 2 resource model that also has a spatially implicit multispecies functional response. Details in McCann et al. 2005 and McCann 2012.
+## 2 consumer, 2 resource model that also has a spatially implicit multispecies functional response. Details in McCann et al. 2005 and McCann 2012. ----
 # this model permits 4 attack rates, 4 handling times, and 4 conversion efficiencies.
 RM_2C_2R_space <- function(t,y,p) {
 
@@ -164,7 +164,7 @@ RM_2C_2R_space <- function(t,y,p) {
   })
 }
 
-## Simplified 2 consumer, 2 resource model with spatially implicit multispecies functional response. Details in McCann et al. 2005 and McCann 2012.
+## Simplified 2 consumer, 2 resource model with spatially implicit multispecies functional response. Details in McCann et al. 2005 and McCann 2012. ----
 # Model permits 2 different attack rates, 1 conversion efficiency, and 1 handling time. 2 different resource growth rates though, and 1 resource carrying capacity.
 RM_2C_2R_space_simple <- function(t,y,p) {
 
