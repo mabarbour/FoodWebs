@@ -28,7 +28,7 @@ a <- 1.3 # initial attack rate of 1.3 instead of 1.2 more closely replicates the
 p.rm1 <- c(r = r, e = e, a = a, K = K, Ro = Ro, m=m) # create a vector for the parameters for experiment #1
 ```
 
-The figures below are the results of three separate simulations, where the half-saturation density was decreased from 0.5 to 0.2 and all other parameters were held constant.
+The figures below are the results of three separate simulations, where the conversion efficiency of the consumer was increased from 0.3 to 0.7 and all other parameters were held constant.
 ```{r eval=TRUE, echo=FALSE, fig.width=10, warning=FALSE}
 #### setup experiment. This experiment essentially solves the model at the initial C and R densities, and takes the new C and R densities and reruns the model, and so on until the end of time.
 Time <- 300 # set time scale
@@ -48,7 +48,7 @@ CisoStable <- eval(Ciso)
 
 ## Experiment 1: e = 0.3
 e <- 0.3
-p.rm1 <- c(r = r, e = e, a = a, K = K, Ro = Ro, m=m)
+p.rm1 <- c(r = r, e = 0.3, a = a, K = K, Ro = Ro, m=m)
 # plot consumer functional response and consumer isocline
 Cfr <- expression(a * C * Rx / (Rx + Ro))
 CfrData <- eval(Cfr)
@@ -70,7 +70,7 @@ legend("right", c("R","C"), lty=1:2, col=1:2, bty="n")
 ######## Experiment 2: e = 0.5
 ###  adjust parameters
 e <- 0.5
-p.rm2 <- c(r = r, e = e, a = a, K = K, Ro = Ro)
+p.rm2 <- c(r = r, e = 0.5, a = a, K = K, Ro = Ro)
 rm2 <- ode(i.state,1:Time, rmcr, p.rm2)
 
 ### adjust resource and consumer isoclines. IDEAS TO MAKE THIS LESS REDUNDANT???
@@ -132,14 +132,14 @@ matplot(rm3[,1],rm3[,c(2,3)], type = "l", ylab="Density", xlab="Time", ylim=c(0,
 legend("topright", c("R","C"), lty=1:2, col=1:2, bty="n", cex=0.8)
 ```
 
-Below is a bifurcation plot, showing how the dynamics of the system changes along a continuous gradient of half-saturation densities.  Note that at high half-saturation densities, the consumers go extinct, but the stability of the system quickly changes over a short parameter range.
+Below is a bifurcation plot, showing how the dynamics of the system changes along a continuous gradient of conversion efficiency.  Note that at high conversion efficiency, the consumers go extinct, but the stability of the system quickly changes over a short parameter range.
 ```{r eval=TRUE, echo=FALSE}
 par(mfrow=c(1,2))
 ############  Figure 2.7a: Bifurcation plot  (All credit for replicating this goes to this website: http://www.r-bloggers.com/r-tools-for-dynamical-systems-bifurcation-plot-in-r%C2%A0for%C2%A0system%C2%A0of%C2%A0odes/)
 
 param.name <- "e" # choose parameter to perturb
-param.seq <- seq(1,0.1,length=50) # choose range of parameters
-Ro <- 1.0
+param.seq <- seq(0.1,1,length=50) # choose range of parameters
+e <- 0.1
 p.rm4 <- c(r = r, e = e, a = a, K = K, Ro = Ro, m=m) # set starting parameters.
 param.index <- which(param.name == names(p.rm4)) # tells the loop which parameter in "p.rm4" to grab for manipulation.
 Time <- 100 # decreased time to see outcomes of simulations
@@ -176,4 +176,3 @@ for (i in 1:length(param.seq)) {
 }
 ```
 
-In figure 5.2 e
