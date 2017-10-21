@@ -100,3 +100,5 @@ niche.webs.df <- plyr::ldply(niche.webs) %>% mutate(Trial = as.factor(Trial))
 ggplot(niche.webs.df, aes(x = vulnerability, y = generality)) + stat_smooth(aes(group = Trial), geom = "line", method = "glm", method.args = list(family = "poisson"), se = FALSE, alpha = 0.5) +
   facet_wrap(~C)
 
+ggplot(filter(niche.webs.df, vulnerability > 0 & generality > 0), aes(x = vulnerability, y = generality)) + stat_smooth(aes(group = Trial), geom = "line", method = "glm", method.args = list(family = "poisson"), se = FALSE, alpha = 0.5) +
+  facet_wrap(~C) # and if we remove top predators and basal resources, then the correlation goes away entirely.
